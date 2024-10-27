@@ -1,0 +1,32 @@
+- name: Install PNETLab and iShare2
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    # Install PNETLab
+    - name: Install PNETLab
+      shell: |
+        bash -c "$(curl -sL https://labhub.eu.org/api/raw/?path=/UNETLAB%20I/upgrades_pnetlab/Focal/install_pnetlab_v6.sh)"
+      become: yes  # This is optional since the playbook is already running with become
+
+    # Install iShare2
+    - name: Clone iShare2 repository
+      git:
+        repo: https://github.com/ishare2-org/ishare2-cli.git
+        dest: /tmp/ishare
+
+    - name: Move iShare2 to /usr/sbin/
+      command: mv /tmp/ishare/ishare2 /usr/sbin/
+
+    - name: Change permissions to make iShare2 executable
+      file:
+        path: /usr/sbin/ishare2
+        mode: '0755'
+
+    - name: Run iShare2
+      command: /usr/sbin/ishare2
+
+    - name: Display completion message
+      debug:
+        msg: "PNETLab and iShare2 installation completed successfully!"
